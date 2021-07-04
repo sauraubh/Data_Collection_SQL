@@ -1,0 +1,23 @@
+SELECT
+    trips.start_ts,
+    T.weather_conditions,
+    trips.duration_seconds
+FROM
+    trips
+    INNER JOIN(
+    SELECT 
+     CASE
+        WHEN weather_records.description LIKE '%rain%' OR  weather_records.description LIKE '%storm%' THEN 'Bad'
+     ELSE 'Good' END as weather_conditions,
+        weather_records.ts,
+        weather_records.record_id
+    FROM
+        weather_records
+    ) AS T on T.ts = trips.start_ts
+WHERE
+     trips.pickup_location_id = '50' AND 
+     trips.dropoff_location_id = '63' AND 
+     EXTRACT(DOW FROM trips.start_ts) = 6  AND
+      T.record_id IS NOT NULL 
+ORDER BY
+     trips.trip_id;
